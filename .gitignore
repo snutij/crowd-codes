@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# BMAD framework (internal tooling)
+.claude/
+_bmad/
+
+# Build output
+_site/
+dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Cache
+.cache/
+.eleventy-cache/
