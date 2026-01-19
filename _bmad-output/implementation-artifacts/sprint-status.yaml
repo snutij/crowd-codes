@@ -39,7 +39,7 @@ story_location: _bmad-output/implementation-artifacts
 
 development_status:
   # Epic 1: Project Foundation & Site Structure
-  epic-1: in-progress
+  epic-1: done
   1-1-initialize-eleventy-project: done
   1-2-create-base-nunjucks-templates: done
   1-3-implement-design-system-css-foundation: done
@@ -48,8 +48,8 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Data Pipeline & Code Extraction
-  epic-2: backlog
-  2-1-create-sqlite-database-schema: backlog
+  epic-2: in-progress
+  2-1-create-sqlite-database-schema: done
   2-2-implement-youtube-scraper-with-adapter-pattern: backlog
   2-3-implement-regex-based-code-parser: backlog
   2-4-implement-llm-fallback-parser: backlog
