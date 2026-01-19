@@ -62,6 +62,4 @@ jobs:
             git push
           fi
 
-      - name: Build site
-        run: npm run build
-        # Note: Cloudflare Pages auto-deploys on push to main (configured via Cloudflare UI)
+      # Cloudflare Pages auto-deploys on push to main (configured via Cloudflare UI)
