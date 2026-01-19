@@ -56,16 +56,18 @@ workflow_status:
         output: "Product Requirements Document with FRs and NFRs"
 
       - id: "create-ux-design"
-        status: "conditional"  # if_has_ui - determined after PRD
+        status: "_bmad-output/planning-artifacts/ux-design-specification.md"
         agent: "ux-designer"
         command: "/bmad:bmm:workflows:create-ux-design"
+        output: "UX Design Specification with responsive/accessibility strategy"
+        completed: "2026-01-19"
 
   # Phase 3: Solutioning
   - phase: 3
     name: "Solutioning"
     workflows:
       - id: "create-architecture"
-        status: "required"
+        status: "_bmad-output/planning-artifacts/architecture.md"
         agent: "architect"
         command: "/bmad:bmm:workflows:create-architecture"
         output: "System architecture document"
