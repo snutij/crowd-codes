@@ -73,9 +73,11 @@ workflow_status:
         output: "System architecture document"
 
       - id: "create-epics-and-stories"
-        status: "required"
+        status: "_bmad-output/planning-artifacts/epics.md"
         agent: "pm"
         command: "/bmad:bmm:workflows:create-epics-and-stories"
+        output: "6 epics with 30 stories covering 38 FRs"
+        completed: "2026-01-19"
 
       - id: "test-design"
         status: "optional"
@@ -83,9 +85,11 @@ workflow_status:
         command: "/bmad:bmm:workflows:testarch-test-design"
 
       - id: "implementation-readiness"
-        status: "required"
+        status: "_bmad-output/planning-artifacts/implementation-readiness-report-2026-01-19.md"
         agent: "architect"
         command: "/bmad:bmm:workflows:check-implementation-readiness"
+        output: "READY - 0 critical issues, 2 minor concerns"
+        completed: "2026-01-19"
 
   # Phase 4: Implementation
   - phase: 4
