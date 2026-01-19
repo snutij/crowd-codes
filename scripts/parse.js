@@ -1,13 +1,13 @@
 /**
  * Code Parser - Main Entry Point
- * Story 2.3: Implement Regex-Based Code Parser
+ * Story 2.3 & 2.4: Regex + LLM Fallback Parser
  *
  * Parses raw video descriptions to extract promo codes.
- * Uses regex patterns as primary parser.
+ * Uses regex patterns as primary parser, LLM as fallback.
  * Stores results in SQLite database.
  *
  * Exit codes:
- * - 0: Success
+ * - 0: Success (even if quota exhausted - graceful degradation)
  * - 1: Recoverable error (DB error, parse failure)
  * - 2: Configuration error (missing files)
  */
@@ -15,6 +15,7 @@
 import Database from 'better-sqlite3';
 import { existsSync } from 'fs';
 import { RegexParser } from './parsers/regex-parser.js';
+import { LlmParser, createLlmParser } from './parsers/llm-parser.js';
 
 const DB_PATH = process.env.CROWD_CODES_DB_PATH || 'data/codes.db';
 const PATTERNS_PATH = process.env.PATTERNS_PATH || 'data/patterns.json';
@@ -64,6 +65,23 @@ function createStatements(db) {
     // Mark video as parsed
     markParsed: db.prepare(`
       UPDATE raw_videos SET parsed = 1 WHERE video_id = ?
+    `),
+
+    // Get videos that failed regex parsing (for LLM fallback)
+    getUnparsedForLlm: db.prepare(`
+      SELECT pl.video_id, rv.description, rv.channel_name
+      FROM parsing_logs pl
+      JOIN raw_videos rv ON pl.video_id = rv.video_id
+      WHERE pl.parsed_by = 'none'
+      ORDER BY pl.created_at DESC
+      LIMIT ?
+    `),
+
+    // Update parsing log with LLM result
+    updateLogWithLlm: db.prepare(`
+      UPDATE parsing_logs
+      SET parsed_by = 'llm', suggested_regex = ?
+      WHERE video_id = ? AND parsed_by = 'none'
     `),
   };
 }
@@ -142,15 +160,155 @@ function processVideo(video, parser, statements, timestamp) {
 }
 
 /**
+ * Process a single video with LLM fallback
+ * @param {Object} video - Video record
+ * @param {LlmParser} llmParser - LLM parser instance
+ * @param {Database} db - Database instance for transactions
+ * @param {Object} statements - Prepared statements
+ * @param {string} timestamp - Current timestamp
+ * @returns {Promise<{codesFound: number, success: boolean, suggested_regex: string|null}>}
+ */
+async function processVideoWithLlm(video, llmParser, db, statements, timestamp) {
+  if (!video || !video.video_id) {
+    return { codesFound: 0, success: false, suggested_regex: null };
+  }
+
+  const result = await llmParser.parseDescription(video.description || '', video.video_id);
+
+  if (!result.success) {
+    // Log quota exhaustion or error, but don't fail
+    if (result.reason === 'quota_exhausted') {
+      return { codesFound: 0, success: false, suggested_regex: null, quotaExhausted: true };
+    }
+    return { codesFound: 0, success: false, suggested_regex: null };
+  }
+
+  // Wrap all DB operations in a transaction for atomicity
+  const storeResults = db.transaction(() => {
+    if (result.codes.length > 0) {
+      // Store each extracted code
+      for (const code of result.codes) {
+        const exists = statements.codeExists.get(code.id);
+
+        statements.insertCode.run(
+          code.id,
+          code.code,
+          code.brand_name,
+          code.brand_slug,
+          'youtube',
+          video.channel_name || 'Unknown',
+          video.video_id,
+          timestamp,
+          code.confidence
+        );
+
+        if (!exists) {
+          statements.insertBrand.run(
+            code.brand_slug,
+            code.brand_name,
+            timestamp
+          );
+        }
+      }
+    }
+
+    // Update parsing log with LLM result
+    statements.updateLogWithLlm.run(
+      result.suggested_regex || null,
+      video.video_id
+    );
+  });
+
+  storeResults();
+
+  return {
+    codesFound: result.codes.length,
+    success: true,
+    suggested_regex: result.suggested_regex,
+  };
+}
+
+/**
+ * Run LLM fallback on videos that failed regex parsing
+ * @param {Database} db - Database instance
+ * @param {Object} statements - Prepared statements
+ * @param {LlmParser} llmParser - LLM parser instance
+ * @returns {Promise<{videosProcessed: number, codesExtracted: number, suggestedRegex: number, quotaExhausted: boolean}>}
+ */
+async function runLlmFallback(db, statements, llmParser) {
+  const timestamp = new Date().toISOString();
+  const limit = llmParser.getCallsRemaining();
+
+  if (limit === 0) {
+    return { videosProcessed: 0, codesExtracted: 0, suggestedRegex: 0, quotaExhausted: true };
+  }
+
+  const videos = statements.getUnparsedForLlm.all(limit);
+
+  if (videos.length === 0) {
+    return { videosProcessed: 0, codesExtracted: 0, suggestedRegex: 0, quotaExhausted: false };
+  }
+
+  console.log(
+    JSON.stringify({
+      event: 'llm_fallback_start',
+      videos_to_process: videos.length,
+      quota_remaining: llmParser.getCallsRemaining(),
+    })
+  );
+
+  let videosProcessed = 0;
+  let codesExtracted = 0;
+  let suggestedRegex = 0;
+  let quotaExhausted = false;
+
+  for (const video of videos) {
+    if (llmParser.isQuotaExhausted()) {
+      quotaExhausted = true;
+      break;
+    }
+
+    try {
+      const result = await processVideoWithLlm(video, llmParser, db, statements, timestamp);
+      videosProcessed++;
+      codesExtracted += result.codesFound;
+
+      if (result.suggested_regex) {
+        suggestedRegex++;
+      }
+
+      if (result.quotaExhausted) {
+        quotaExhausted = true;
+        break;
+      }
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          error: error.message,
+          code: 'LLM_PARSE_ERROR',
+          video_id: video.video_id,
+        })
+      );
+    }
+  }
+
+  return { videosProcessed, codesExtracted, suggestedRegex, quotaExhausted };
+}
+
+/**
  * Run the parser on all unparsed videos
  * @param {Object} options - Parser options
  * @param {string} options.dbPath - Database path
  * @param {string} options.patternsPath - Patterns file path
- * @returns {Promise<{success: boolean, videosProcessed: number, codesExtracted: number, failedParses: number}>}
+ * @param {boolean} options.skipLlm - Skip LLM fallback (for testing)
+ * @returns {Promise<{success: boolean, videosProcessed: number, codesExtracted: number, failedParses: number, llm: Object}>}
  */
 export async function runParser(options = {}) {
   const dbPath = options.dbPath || DB_PATH;
   const patternsPath = options.patternsPath || PATTERNS_PATH;
+  const skipLlm = options.skipLlm || false;
+
+  const defaultLlmResult = { videosProcessed: 0, codesExtracted: 0, suggestedRegex: 0, quotaExhausted: false };
 
   // Validate files exist
   if (!existsSync(dbPath)) {
@@ -160,7 +318,7 @@ export async function runParser(options = {}) {
         code: 'CONFIG_ERROR',
       })
     );
-    return { success: false, videosProcessed: 0, codesExtracted: 0, failedParses: 0 };
+    return { success: false, videosProcessed: 0, codesExtracted: 0, failedParses: 0, llm: defaultLlmResult };
   }
 
   if (!existsSync(patternsPath)) {
@@ -170,7 +328,7 @@ export async function runParser(options = {}) {
         code: 'CONFIG_ERROR',
       })
     );
-    return { success: false, videosProcessed: 0, codesExtracted: 0, failedParses: 0 };
+    return { success: false, videosProcessed: 0, codesExtracted: 0, failedParses: 0, llm: defaultLlmResult };
   }
 
   let db = null;
@@ -202,7 +360,7 @@ export async function runParser(options = {}) {
           message: 'No unparsed videos found',
         })
       );
-      return { success: true, videosProcessed: 0, codesExtracted: 0, failedParses: 0 };
+      return { success: true, videosProcessed: 0, codesExtracted: 0, failedParses: 0, llm: defaultLlmResult };
     }
 
     const timestamp = new Date().toISOString();
@@ -237,7 +395,7 @@ export async function runParser(options = {}) {
 
     console.log(
       JSON.stringify({
-        event: 'parse_complete',
+        event: 'regex_parse_complete',
         videos_processed: videosProcessed,
         codes_extracted: codesExtracted,
         failed_parses: failedParses,
@@ -247,11 +405,52 @@ export async function runParser(options = {}) {
       })
     );
 
+    // Run LLM fallback if enabled and API key is set
+    let llmResult = { videosProcessed: 0, codesExtracted: 0, suggestedRegex: 0, quotaExhausted: false };
+
+    if (!skipLlm && failedParses > 0) {
+      const llmParser = createLlmParser();
+
+      if (llmParser) {
+        llmResult = await runLlmFallback(db, statements, llmParser);
+
+        console.log(
+          JSON.stringify({
+            event: 'llm_fallback_complete',
+            videos_processed: llmResult.videosProcessed,
+            codes_extracted: llmResult.codesExtracted,
+            suggested_regex: llmResult.suggestedRegex,
+            quota_exhausted: llmResult.quotaExhausted,
+          })
+        );
+      } else {
+        console.log(
+          JSON.stringify({
+            event: 'llm_fallback_skipped',
+            reason: 'GEMINI_API_KEY not set',
+          })
+        );
+      }
+    }
+
+    // Combined results
+    const totalCodesExtracted = codesExtracted + llmResult.codesExtracted;
+
+    console.log(
+      JSON.stringify({
+        event: 'parse_complete',
+        regex: { videos: videosProcessed, codes: codesExtracted },
+        llm: { videos: llmResult.videosProcessed, codes: llmResult.codesExtracted },
+        total_codes: totalCodesExtracted,
+      })
+    );
+
     return {
       success: true,
       videosProcessed,
       codesExtracted,
       failedParses,
+      llm: llmResult,
     };
   } catch (error) {
     console.error(
@@ -266,6 +465,7 @@ export async function runParser(options = {}) {
       videosProcessed: 0,
       codesExtracted: 0,
       failedParses: 0,
+      llm: { videosProcessed: 0, codesExtracted: 0, suggestedRegex: 0, quotaExhausted: false },
     };
   } finally {
     if (db) {
