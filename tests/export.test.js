@@ -12,8 +12,7 @@
 
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
-import { existsSync, readFileSync, unlinkSync, mkdirSync, rmSync } from 'fs';
-import { dirname } from 'path';
+import { existsSync, readFileSync, unlinkSync } from 'fs';
 import Database from 'better-sqlite3';
 
 // Dynamic import for module under test
@@ -167,6 +166,34 @@ describe('JSON structure validation', () => {
     assert.ok(code.source_type, 'Should have source_type');
     assert.ok(code.found_at, 'Should have found_at');
     assert.strictEqual(typeof code.confidence, 'number', 'confidence should be number');
+  });
+
+  test('handles null optional fields (source_channel, source_video_id)', async () => {
+    // Create a fresh DB with null optional fields
+    if (existsSync(TEST_DB_PATH)) unlinkSync(TEST_DB_PATH);
+    const db = new Database(TEST_DB_PATH);
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS codes (
+        id TEXT PRIMARY KEY, code TEXT NOT NULL, brand_name TEXT NOT NULL,
+        brand_slug TEXT NOT NULL, source_type TEXT NOT NULL, source_channel TEXT,
+        source_video_id TEXT, found_at TEXT NOT NULL, confidence REAL DEFAULT 1.0
+      );
+      CREATE TABLE IF NOT EXISTS brands (slug TEXT PRIMARY KEY, name TEXT NOT NULL,
+        first_seen_at TEXT NOT NULL, code_count INTEGER DEFAULT 0);
+    `);
+    db.prepare(`
+      INSERT INTO codes (id, code, brand_name, brand_slug, source_type, source_channel, source_video_id, found_at, confidence)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run('code-null', 'NULLTEST', 'Brand', 'brand', 'manual', null, null, '2026-01-19T10:00:00Z', 0.8);
+    db.close();
+
+    const result = runExport({ dbPath: TEST_DB_PATH, outputPath: TEST_OUTPUT_PATH });
+    assert.ok(result.success, 'Should succeed with null fields');
+
+    const json = JSON.parse(readFileSync(TEST_OUTPUT_PATH, 'utf-8'));
+    const code = json.codes[0];
+    assert.strictEqual(code.source_channel, null, 'source_channel should be null');
+    assert.strictEqual(code.source_video_id, null, 'source_video_id should be null');
   });
 });
 

@@ -1,6 +1,6 @@
 # Story 2.5: Implement JSON Export for Eleventy
 
-Status: review
+Status: done
 
 ## Story
 

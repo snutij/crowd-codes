@@ -32,5 +32,8 @@ npm-debug.log*
 .cache/
 .eleventy-cache/
 
+# Generated data files (recreated by npm run export)
+src/_data/codes.json
+
 # IMPORTANT: data/codes.db is NOT ignored - it's the source of truth
 # Do NOT add data/codes.db to this file
