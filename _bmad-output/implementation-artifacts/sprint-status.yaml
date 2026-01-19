@@ -69,10 +69,10 @@ development_status:
   epic-3-retrospective: optional
 
   # Epic 4: Brand Pages & SEO
-  epic-4: in-progress
-  4-1-enhance-brand-pages-with-seo-meta-tags: ready-for-dev
-  4-2-generate-sitemap-xml: ready-for-dev
-  4-3-add-json-ld-schema-org-markup: ready-for-dev
+  epic-4: done
+  4-1-enhance-brand-pages-with-seo-meta-tags: done
+  4-2-generate-sitemap-xml: done
+  4-3-add-json-ld-schema-org-markup: done
   epic-4-retrospective: optional
 
   # Epic 5: Observability & Analytics

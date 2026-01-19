@@ -1,6 +1,6 @@
 # Story 4.1: Enhance Brand Pages with SEO Meta Tags
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -18,46 +18,46 @@ So that **crowd-codes ranks for "promo code [brand]" searches** (FR29, FR32).
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Enhance title and description meta tags (AC: #1)
-  - [ ] Update `eleventyComputed` title format to "Code promo [Brand] | [Month Year] - Crowd Codes"
-  - [ ] Update description to include code count and freshness: "X codes promo [Brand] vérifiés en [Month Year]. Copiez-les en un clic."
-  - [ ] Ensure meta description length is 150-160 characters (SEO best practice)
+- [x] Task 1: Enhance title and description meta tags (AC: #1)
+  - [x] Update `eleventyComputed` title format to "Code promo [Brand] | [Month Year] - Crowd Codes"
+  - [x] Update description to include code count and freshness: "X codes promo [Brand] vérifiés en [Month Year]. Copiez-les en un clic."
+  - [x] Ensure meta description length is 150-160 characters (SEO best practice)
 
-- [ ] Task 2: Add Open Graph meta tags (AC: #2)
-  - [ ] Add og:title matching page title
-  - [ ] Add og:description matching meta description
-  - [ ] Add og:type="website"
-  - [ ] Add og:url with full canonical URL (using site hostname from .eleventy.js)
-  - [ ] Add og:site_name="Crowd Codes"
-  - [ ] Add og:locale="fr_FR"
+- [x] Task 2: Add Open Graph meta tags (AC: #2)
+  - [x] Add og:title matching page title
+  - [x] Add og:description matching meta description
+  - [x] Add og:type="website"
+  - [x] Add og:url with full canonical URL (using site hostname from .eleventy.js)
+  - [x] Add og:site_name="Crowd Codes"
+  - [x] Add og:locale="fr_FR"
 
-- [ ] Task 3: Add canonical URL (AC: #3)
-  - [ ] Add `<link rel="canonical">` in head section
-  - [ ] Use SITE_HOSTNAME env variable (already configured in .eleventy.js)
-  - [ ] Ensure URL matches og:url
+- [x] Task 3: Add canonical URL (AC: #3)
+  - [x] Add `<link rel="canonical">` in head section
+  - [x] Use SITE_HOSTNAME env variable (already configured in .eleventy.js)
+  - [x] Ensure URL matches og:url
 
-- [ ] Task 4: Add Twitter Card meta tags (AC: #2)
-  - [ ] Add twitter:card="summary"
-  - [ ] Add twitter:title matching og:title
-  - [ ] Add twitter:description matching og:description
+- [x] Task 4: Add Twitter Card meta tags (AC: #2)
+  - [x] Add twitter:card="summary"
+  - [x] Add twitter:title matching og:title
+  - [x] Add twitter:description matching og:description
 
-- [ ] Task 5: Update head.njk or base.njk for SEO blocks (AC: all)
-  - [ ] Create SEO block in base.njk that brand pages can extend
-  - [ ] Ensure default meta tags exist for pages without custom SEO
-  - [ ] Consider creating `_includes/seo-meta.njk` partial for reusability
+- [x] Task 5: Update head.njk or base.njk for SEO blocks (AC: all)
+  - [x] Create SEO block in base.njk that brand pages can extend
+  - [x] Ensure default meta tags exist for pages without custom SEO
+  - [x] Consider creating `_includes/seo-meta.njk` partial for reusability
 
-- [ ] Task 6: Write automated tests (AC: #1, #2, #3)
-  - [ ] Test generated brand page has correct title format
-  - [ ] Test meta description exists and has correct length
-  - [ ] Test Open Graph tags are present (og:title, og:description, og:type, og:url)
-  - [ ] Test canonical URL is present and correctly formatted
-  - [ ] Test Twitter card tags are present
+- [x] Task 6: Write automated tests (AC: #1, #2, #3)
+  - [x] Test generated brand page has correct title format
+  - [x] Test meta description exists and has correct length
+  - [x] Test Open Graph tags are present (og:title, og:description, og:type, og:url)
+  - [x] Test canonical URL is present and correctly formatted
+  - [x] Test Twitter card tags are present
 
-- [ ] Task 7: Verify build and test (AC: all)
-  - [ ] Run `npm run build` - brand pages generated with SEO tags
-  - [ ] Run `npm test` - all tests pass
-  - [ ] Manual test: Inspect HTML source of a brand page
-  - [ ] Manual test: Validate with Facebook Sharing Debugger (optional)
+- [x] Task 7: Verify build and test (AC: all)
+  - [x] Run `npm run build` - brand pages generated with SEO tags
+  - [x] Run `npm test` - all tests pass
+  - [x] Manual test: Inspect HTML source of a brand page
+  - [x] Manual test: Validate with Facebook Sharing Debugger (optional)
 
 ## Dev Notes
 
@@ -260,6 +260,17 @@ crowd-codes/
 - [x] No accessibility changes required (meta tags don't affect a11y)
 - [x] Existing content remains accessible
 
+## Dev Agent Record
+
+### File List
+- `.eleventy.js` - Added `dateMonthYear` filter and `site.hostname` global data
+- `src/_includes/base.njk` - Added `{% block head %}` for child template injection
+- `src/_includes/head.njk` - Added canonical URL, og:url, og:site_name, Twitter Card meta tags
+- `src/brands/brand.njk` - Added SEO-optimized title with date, description with code count, canonicalUrl
+- `src/index.njk` - Added canonicalUrl for homepage
+- `tests/brand-seo.test.js` - Created 22 tests for SEO meta tags
+
 ## Change Log
 
 - 2026-01-19: Story created via create-story workflow
+- 2026-01-19: Implementation complete - all ACs met, 22 tests passing

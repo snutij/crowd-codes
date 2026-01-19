@@ -1,8 +1,39 @@
 ---
 title: Crowd Codes - Promo Codes Without the Friction
 description: Trouvez des codes promo qui marchent. Sans pubs, sans popups, sans friction. Codes visibles directement, triés par fraîcheur.
+eleventyComputed:
+  canonicalUrl: "{{ site.hostname }}/"
 ---
 {% extends "base.njk" %}
+
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Crowd Codes",
+  "url": "{{ site.hostname }}/",
+  "description": "Codes promo vérifiés, copiés en un clic. Sans pubs, sans inscription.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "{{ site.hostname }}/?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Crowd Codes",
+  "url": "{{ site.hostname }}/",
+  "description": "Codes promo vérifiés, copiés en un clic."
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <h1>Crowd Codes</h1>

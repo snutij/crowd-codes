@@ -3,10 +3,18 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'">
 <meta name="description" content="{{ description | default('Codes promo sans friction. Visibles immédiatement, triés par fraîcheur.') }}">
 
+{% if canonicalUrl %}<link rel="canonical" href="{{ canonicalUrl }}">{% endif %}
+
 <meta property="og:title" content="{{ title | default('Crowd Codes') }}">
 <meta property="og:description" content="{{ description | default('Codes promo sans friction. Visibles immédiatement, triés par fraîcheur.') }}">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Crowd Codes">
+{% if canonicalUrl %}<meta property="og:url" content="{{ canonicalUrl }}">{% endif %}
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ title | default('Crowd Codes') }}">
+<meta name="twitter:description" content="{{ description | default('Codes promo sans friction. Visibles immédiatement, triés par fraîcheur.') }}">
 
 <title>{{ title | default('Crowd Codes') }}</title>
 

@@ -1,7 +1,12 @@
 // .eleventy.js (ESM format)
-import pluginSitemap from "@quasibit/eleventy-plugin-sitemap";
 
 export default function(eleventyConfig) {
+  // Custom filter: Format date as French month and year (Story 4.1)
+  eleventyConfig.addFilter("dateMonthYear", function(date) {
+    const d = date ? new Date(date) : new Date();
+    return d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  });
+
   // Custom filter: Format relative date in French (Story 3.3)
   // NOTE: Intentionally duplicated in public/js/search.js for client-side - no bundler in project
   eleventyConfig.addFilter("formatRelativeDate", function(isoDate) {
@@ -30,12 +35,12 @@ export default function(eleventyConfig) {
     return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
   });
 
-  // Sitemap plugin - hostname configurable via env for forks
+  // Site hostname - configurable via env for forks (used for SEO, sitemap, JSON-LD)
   const siteHostname = process.env.SITE_HOSTNAME || "https://crowd-codes.pages.dev";
-  eleventyConfig.addPlugin(pluginSitemap, {
-    sitemap: {
-      hostname: siteHostname
-    }
+
+  // Global data for templates (Story 4.1, 4.2, 4.3)
+  eleventyConfig.addGlobalData("site", {
+    hostname: siteHostname
   });
 
   // Passthrough copy for static assets (public/* -> _site/*)

@@ -5,10 +5,33 @@ pagination:
   alias: brand
 permalink: "brands/{{ brand.slug }}/"
 eleventyComputed:
-  title: "Codes promo {{ brand.name }} - Crowd Codes"
-  description: "Codes promo {{ brand.name }} vérifiés et récents. Sans pubs, sans friction."
+  title: "Code promo {{ brand.name }} | {{ page.date | dateMonthYear | capitalize }} - Crowd Codes"
+  description: "{{ brand.codes.length }} codes promo {{ brand.name }} vérifiés. Copiez-les en un clic, sans inscription."
+  canonicalUrl: "{{ site.hostname }}/brands/{{ brand.slug }}/"
 ---
 {% extends "base.njk" %}
+
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Codes promo {{ brand.name | escape }}",
+  "description": "{{ brand.codes.length }} codes promo {{ brand.name | escape }} vérifiés.",
+  "url": "{{ site.hostname }}/brands/{{ brand.slug }}/",
+  "numberOfItems": {{ brand.codes.length }},
+  "itemListElement": [
+    {% for code in brand.codes | sort(true, false, 'found_at') %}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index }},
+      "name": {{ code.code | dump | safe }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <h1>Codes promo {{ brand.name }}</h1>
