@@ -1,0 +1,65 @@
+{
+  "patterns": [
+    {
+      "id": "code-keyword-fr",
+      "regex": "(?:code(?:\\s+promo)?|promo|coupon)[\\s:]+([A-Z0-9]{4,20})",
+      "brand_hint": null,
+      "confidence": 0.7,
+      "description": "Matches 'code promo: CODE123' or 'coupon: SAVE20'"
+    },
+    {
+      "id": "brand-percent-pattern",
+      "regex": "\\b([A-Z]{3,12})(\\d{1,2})\\b",
+      "brand_hint": "$1",
+      "confidence": 0.8,
+      "description": "Matches brand-prefixed codes like NIKE15, ADIDAS20"
+    },
+    {
+      "id": "avec-code-pattern",
+      "regex": "avec\\s+(?:le\\s+)?code[\\s:]+([A-Z0-9]{4,20})",
+      "brand_hint": null,
+      "confidence": 0.75,
+      "description": "Matches 'avec le code SUMMER20'"
+    },
+    {
+      "id": "reduction-pattern",
+      "regex": "(?:réduction|remise)[\\s:]+([A-Z0-9]{4,20})",
+      "brand_hint": null,
+      "confidence": 0.7,
+      "description": "Matches 'réduction: SAVE10'"
+    },
+    {
+      "id": "nordvpn-pattern",
+      "regex": "nordvpn\\.com\\/([a-zA-Z0-9_-]+)",
+      "brand_hint": "NordVPN",
+      "confidence": 0.95,
+      "description": "Matches NordVPN affiliate links"
+    },
+    {
+      "id": "surfshark-pattern",
+      "regex": "surfshark\\.(?:com|deals)\\/([a-zA-Z0-9_-]+)",
+      "brand_hint": "Surfshark",
+      "confidence": 0.95,
+      "description": "Matches Surfshark affiliate links"
+    },
+    {
+      "id": "percent-off-code",
+      "regex": "-?(\\d{1,2})%[^A-Z]*([A-Z0-9]{4,15})",
+      "brand_hint": null,
+      "confidence": 0.65,
+      "description": "Matches '-20% avec CODE123'"
+    },
+    {
+      "id": "standalone-uppercase",
+      "regex": "\\b([A-Z]{4,10}[0-9]{2,3})\\b",
+      "brand_hint": null,
+      "confidence": 0.5,
+      "description": "Fallback: standalone uppercase codes like SAVE20, FLASH50 (min 4 letters + 2 digits)"
+    }
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "last_updated": "2026-01-19",
+    "total_patterns": 8
+  }
+}
