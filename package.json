@@ -1,16 +1,34 @@
 {
   "name": "crowd-codes",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "Collaborative promo code platform with zero friction",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justinMusic/crowd-codes.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "homepage": "https://crowd-codes.pages.dev",
+  "bugs": {
+    "url": "https://github.com/justinMusic/crowd-codes/issues"
+  },
+  "scripts": {
+    "build": "npx @11ty/eleventy",
+    "serve": "npx @11ty/eleventy --serve",
+    "start": "npm run serve",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": ["promo-codes", "eleventy", "jamstack"],
+  "author": "Justin",
+  "license": "MIT",
   "devDependencies": {
-    "@11ty/eleventy": "^3.1.2"
+    "@11ty/eleventy": "^3.0.0",
+    "@quasibit/eleventy-plugin-sitemap": "^2.2.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "fuse.js": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

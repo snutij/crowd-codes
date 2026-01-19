@@ -31,3 +31,6 @@ npm-debug.log*
 # Cache
 .cache/
 .eleventy-cache/
+
+# IMPORTANT: data/codes.db is NOT ignored - it's the source of truth
+# Do NOT add data/codes.db to this file
