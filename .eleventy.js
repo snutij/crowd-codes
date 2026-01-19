@@ -13,6 +13,9 @@ export default function(eleventyConfig) {
   // Passthrough copy for static assets (public/* -> _site/*)
   eleventyConfig.addPassthroughCopy({ "public": "/" });
 
+  // Copy codes.json to root of _site for client-side fetch
+  eleventyConfig.addPassthroughCopy({ "src/_data/codes.json": "codes.json" });
+
   return {
     dir: {
       input: "src",
