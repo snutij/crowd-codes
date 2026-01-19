@@ -95,7 +95,7 @@
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: opacity var(--transition-fast);
+  transition: background-color var(--transition-fast), opacity var(--transition-fast);
 }
 
 .copy-btn:hover {
@@ -109,6 +109,28 @@
 
 .copy-btn:active {
   opacity: 0.8;
+}
+
+/* CopyButton - Copied state (Story 3.4) */
+.copy-btn--copied {
+  background: var(--color-success);  /* #16a34a */
+  pointer-events: none;  /* Prevent double-click during cooldown */
+}
+
+.copy-btn--copied:focus {
+  outline: 2px solid var(--color-success);
+  outline-offset: 2px;
+}
+
+/* CopyButton - Error state (Story 3.4 - Code Review Fix) */
+.copy-btn--error {
+  background: var(--color-error, #dc2626);
+  pointer-events: none;  /* Prevent clicks during error state */
+}
+
+.copy-btn--error:focus {
+  outline: 2px solid var(--color-error, #dc2626);
+  outline-offset: 2px;
 }
 
 /* Empty and Error States (Story 3.2 minimal, proper styling in Story 3.6) */
