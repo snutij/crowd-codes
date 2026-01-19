@@ -1,24 +1,10 @@
 ---
 title: Crowd Codes - Promo Codes Without the Friction
 description: Trouvez des codes promo qui marchent. Sans pubs, sans popups, sans friction. Codes visibles directement, triés par fraîcheur.
-layout: false
 ---
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="{{ description }}">
-  <meta property="og:title" content="{{ title }}">
-  <meta property="og:description" content="{{ description }}">
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="fr_FR">
-  <title>{{ title }}</title>
-</head>
-<body>
-  <main>
-    <h1>Crowd Codes</h1>
-    <p>Codes promo sans friction. Coming soon.</p>
-  </main>
-</body>
-</html>
+{% extends "base.njk" %}
+
+{% block content %}
+<h1>Crowd Codes</h1>
+<p>Codes promo sans friction. Coming soon.</p>
+{% endblock %}

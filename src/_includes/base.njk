@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  {% include "head.njk" %}
+</head>
+<body>
+  {% include "header.njk" %}
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+  {% include "footer.njk" %}
+</body>
+</html>
