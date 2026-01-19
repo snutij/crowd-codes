@@ -62,17 +62,17 @@ development_status:
   3-1-create-homepage-with-search-input: done
   3-2-implement-fuse-js-fuzzy-search: done
   3-3-create-codecard-component: done
-  3-4-implement-copybutton-with-clipboard-api: review
+  3-4-implement-copybutton-with-clipboard-api: done
   3-5-implement-toast-notification: done
   3-6-implement-empty-state-and-error-handling: done
   3-7-create-basic-brand-page-access: done
   epic-3-retrospective: optional
 
   # Epic 4: Brand Pages & SEO
-  epic-4: backlog
-  4-1-enhance-brand-pages-with-seo-meta-tags: backlog
-  4-2-generate-sitemap-xml: backlog
-  4-3-add-json-ld-schema-org-markup: backlog
+  epic-4: in-progress
+  4-1-enhance-brand-pages-with-seo-meta-tags: ready-for-dev
+  4-2-generate-sitemap-xml: ready-for-dev
+  4-3-add-json-ld-schema-org-markup: ready-for-dev
   epic-4-retrospective: optional
 
   # Epic 5: Observability & Analytics
