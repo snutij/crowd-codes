@@ -10,8 +10,8 @@ export default function(eleventyConfig) {
     }
   });
 
-  // Passthrough copy for static assets
-  eleventyConfig.addPassthroughCopy("public");
+  // Passthrough copy for static assets (public/* -> _site/*)
+  eleventyConfig.addPassthroughCopy({ "public": "/" });
 
   return {
     dir: {

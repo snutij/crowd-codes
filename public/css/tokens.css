@@ -1,0 +1,57 @@
+/* Design Tokens - Crowd Codes */
+/* All CSS custom properties (variables) defined here */
+
+:root {
+  /* Colors - High contrast for trust */
+  --color-bg: #ffffff;
+  --color-text: #1a1a1a;
+  --color-accent: #2563eb;       /* Blue - action buttons */
+  --color-success: #16a34a;      /* Green - copied feedback */
+  --color-muted: #6b7280;        /* Gray - metadata, secondary text */
+  --color-border: #e5e7eb;       /* Light gray - separators */
+
+  /* Spacing - 4px base scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.25rem;    /* 20px */
+  --font-size-xl: 1.5rem;     /* 24px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Touch targets - Apple HIG minimum */
+  --touch-min: 44px;
+
+  /* Transitions */
+  --transition-fast: 100ms ease-out;
+  --transition-normal: 200ms ease-out;
+
+  /* Layout */
+  --max-width: 640px;
+  --border-radius: 4px;
+}
+
+/* Dark Mode - per UX spec */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1a1a1a;
+    --color-text: #ffffff;
+    --color-muted: #9ca3af;
+    --color-border: #374151;
+  }
+}

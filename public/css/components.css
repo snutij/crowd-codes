@@ -1,0 +1,102 @@
+/* Component Styles - Crowd Codes */
+/* Layout and component-specific styles */
+
+/* Site Header */
+.site-header {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  transition: color var(--transition-fast);
+}
+
+.site-title:hover {
+  color: var(--color-accent);
+}
+
+/* Main Content */
+main {
+  padding: var(--space-md);
+  min-height: calc(100vh - 120px);
+}
+
+/* Site Footer */
+.site-footer {
+  padding: var(--space-md);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
+.site-footer nav {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.site-footer a {
+  color: var(--color-muted);
+  transition: color var(--transition-fast);
+}
+
+.site-footer a:hover {
+  color: var(--color-accent);
+}
+
+/* Headings */
+h1 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-md);
+}
+
+h2 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-sm);
+}
+
+/* Paragraphs */
+p {
+  margin-bottom: var(--space-md);
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+/* Links */
+a:not(.site-title):not(.site-footer a) {
+  color: var(--color-accent);
+  transition: opacity var(--transition-fast);
+}
+
+a:not(.site-title):not(.site-footer a):hover {
+  opacity: 0.8;
+}
+
+/* Desktop enhancement */
+@media (min-width: 768px) {
+  main {
+    max-width: var(--max-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .site-header {
+    max-width: var(--max-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .site-footer {
+    max-width: var(--max-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
