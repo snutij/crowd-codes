@@ -53,7 +53,7 @@ development_status:
   2-2-implement-youtube-scraper-with-adapter-pattern: done
   2-3-implement-regex-based-code-parser: done
   2-4-implement-llm-fallback-parser: done
-  2-5-implement-json-export-for-eleventy: backlog
+  2-5-implement-json-export-for-eleventy: review
   2-6-create-daily-pipeline-github-action: backlog
   epic-2-retrospective: optional
 
