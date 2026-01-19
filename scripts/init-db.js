@@ -6,6 +6,7 @@
  * - codes: Promo codes extracted from YouTube videos
  * - brands: Aggregated brand information
  * - parsing_logs: Logs for self-improvement system
+ * - raw_videos: Raw scraped YouTube videos for parsing
  *
  * This script is idempotent - safe to run multiple times.
  *
@@ -80,6 +81,19 @@ export function initializeDatabase(dbPath = DB_PATH) {
       )
     `);
 
+    // Create raw_videos table - for storing scraped YouTube videos
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS raw_videos (
+        video_id TEXT PRIMARY KEY,
+        channel_name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        published_at TEXT NOT NULL,
+        source_type TEXT NOT NULL DEFAULT 'youtube',
+        scraped_at TEXT NOT NULL,
+        parsed INTEGER DEFAULT 0
+      )
+    `);
+
     // Create indexes for performance
     db.exec(`
       CREATE INDEX IF NOT EXISTS idx_codes_brand_slug ON codes(brand_slug)
@@ -93,6 +107,14 @@ export function initializeDatabase(dbPath = DB_PATH) {
       CREATE INDEX IF NOT EXISTS idx_parsing_logs_created_at ON parsing_logs(created_at)
     `);
 
+    db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_raw_videos_scraped_at ON raw_videos(scraped_at)
+    `);
+
+    db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_raw_videos_parsed ON raw_videos(parsed)
+    `);
+
     db.close();
     db = null;
 
@@ -101,11 +123,13 @@ export function initializeDatabase(dbPath = DB_PATH) {
       JSON.stringify({
         event: 'db_init_complete',
         path: dbPath,
-        tables: ['codes', 'brands', 'parsing_logs'],
+        tables: ['codes', 'brands', 'parsing_logs', 'raw_videos'],
         indexes: [
           'idx_codes_brand_slug',
           'idx_codes_found_at',
           'idx_parsing_logs_created_at',
+          'idx_raw_videos_scraped_at',
+          'idx_raw_videos_parsed',
         ],
       })
     );

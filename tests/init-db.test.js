@@ -129,8 +129,34 @@ describe('Database Schema', () => {
     assert.strictEqual(idColumn.pk, 1, 'id should be primary key');
   });
 
+  test('raw_videos table exists with correct columns', () => {
+    const tableInfo = db.prepare("PRAGMA table_info('raw_videos')").all();
+    const columnNames = tableInfo.map((col) => col.name);
+
+    const expectedColumns = [
+      'video_id',
+      'channel_name',
+      'description',
+      'published_at',
+      'source_type',
+      'scraped_at',
+      'parsed',
+    ];
+
+    for (const col of expectedColumns) {
+      assert.ok(
+        columnNames.includes(col),
+        `raw_videos table should have column: ${col}`
+      );
+    }
+
+    // Check video_id is primary key
+    const videoIdColumn = tableInfo.find((col) => col.name === 'video_id');
+    assert.strictEqual(videoIdColumn.pk, 1, 'video_id should be primary key');
+  });
+
   test('all column names use snake_case convention', () => {
-    const tables = ['codes', 'brands', 'parsing_logs'];
+    const tables = ['codes', 'brands', 'parsing_logs', 'raw_videos'];
     const snakeCaseRegex = /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/;
 
     for (const table of tables) {
@@ -157,6 +183,8 @@ describe('Database Schema', () => {
       'idx_codes_brand_slug',
       'idx_codes_found_at',
       'idx_parsing_logs_created_at',
+      'idx_raw_videos_scraped_at',
+      'idx_raw_videos_parsed',
     ];
 
     for (const idx of expectedIndexes) {
@@ -181,6 +209,10 @@ describe('Database Schema', () => {
     assert.ok(
       tableNames.includes('parsing_logs'),
       'parsing_logs table should still exist'
+    );
+    assert.ok(
+      tableNames.includes('raw_videos'),
+      'raw_videos table should still exist'
     );
   });
 
