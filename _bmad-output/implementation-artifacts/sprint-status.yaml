@@ -58,14 +58,14 @@ development_status:
   epic-2-retrospective: optional
 
   # Epic 3: Code Discovery & Copy Experience
-  epic-3: in-progress
+  epic-3: done
   3-1-create-homepage-with-search-input: done
   3-2-implement-fuse-js-fuzzy-search: done
   3-3-create-codecard-component: done
   3-4-implement-copybutton-with-clipboard-api: review
   3-5-implement-toast-notification: done
   3-6-implement-empty-state-and-error-handling: done
-  3-7-create-basic-brand-page-access: backlog
+  3-7-create-basic-brand-page-access: done
   epic-3-retrospective: optional
 
   # Epic 4: Brand Pages & SEO
