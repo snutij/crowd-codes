@@ -1,4 +1,4 @@
-import { test, describe, before } from 'node:test';
+import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert';
 import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
@@ -221,10 +221,14 @@ describe('Navigation (Story 3.7)', () => {
 
 describe('Build Verification (Story 3.7)', () => {
   const projectRoot = process.cwd();
+  const codesPath = join(projectRoot, 'src', '_data', 'codes.json');
+  let originalCodesData;
 
   before(() => {
+    // Backup original codes.json to restore after tests
+    originalCodesData = readFileSync(codesPath, 'utf-8');
+
     // Add test data temporarily
-    const codesPath = join(projectRoot, 'src', '_data', 'codes.json');
     const testData = {
       meta: { generated_at: new Date().toISOString(), total_codes: 2, total_brands: 1 },
       codes: [
@@ -254,6 +258,11 @@ describe('Build Verification (Story 3.7)', () => {
     execSync('npm run build', { stdio: 'inherit' });
   });
 
+  after(() => {
+    // Restore original codes.json to avoid test data pollution
+    writeFileSync(codesPath, originalCodesData);
+  });
+
   test('build generates brand page at /brands/testbrand/', () => {
     const brandPagePath = join(projectRoot, '_site', 'brands', 'testbrand', 'index.html');
     assert.ok(existsSync(brandPagePath),
@@ -281,5 +290,13 @@ describe('Build Verification (Story 3.7)', () => {
     const content = readFileSync(brandPagePath, 'utf-8');
     assert.match(content, /copy-btn/,
       'Brand page should have copy button');
+  });
+
+  test('invalid brand slugs do not generate pages (404 behavior)', () => {
+    // Eleventy pagination only generates pages for brands that exist in codes.json
+    // Non-existent slugs result in no page being generated -> 404 from Cloudflare
+    const invalidBrandPath = join(projectRoot, '_site', 'brands', 'nonexistent-brand', 'index.html');
+    assert.ok(!existsSync(invalidBrandPath),
+      'Invalid brand slugs should not generate pages (Cloudflare returns 404)');
   });
 });

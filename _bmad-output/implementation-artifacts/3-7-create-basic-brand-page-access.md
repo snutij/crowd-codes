@@ -320,3 +320,9 @@ crowd-codes/
 
 - 2026-01-19: Story created via create-story workflow
 - 2026-01-19: Implementation complete - all 8 tasks done, 279 tests pass
+- 2026-01-19: Code review fixes applied:
+  - HIGH: Fixed sort order in brand.njk (removed redundant `| reverse`)
+  - MEDIUM: Added JSON error logging in brands.js
+  - MEDIUM: Added test cleanup (before/after hooks) in brand-pages.test.js
+  - MEDIUM: Added test for invalid brand slug 404 behavior
+  - Tests now: 280 passing

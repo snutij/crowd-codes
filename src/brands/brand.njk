@@ -15,7 +15,7 @@ eleventyComputed:
 
 <section id="results" class="results-container" aria-label="Codes promo {{ brand.name }}">
   {% if brand.codes.length > 0 %}
-    {% for code in brand.codes | sort(true, false, 'found_at') | reverse %}
+    {% for code in brand.codes | sort(true, false, 'found_at') %}
       <article class="code-card" data-code-id="{{ code.id }}" data-code-value="{{ code.code }}">
         <div class="code-card-main">
           <code class="code-value">{{ code.code }}</code>

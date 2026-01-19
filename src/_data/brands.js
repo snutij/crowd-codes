@@ -25,8 +25,13 @@ export default function() {
   try {
     const content = readFileSync(codesPath, 'utf-8');
     codesData = JSON.parse(content);
-  } catch {
-    // Return empty array if codes.json doesn't exist or is invalid
+  } catch (error) {
+    // Log error as JSON per project-context.md, return empty array gracefully
+    console.error(JSON.stringify({
+      error: 'Failed to load codes.json for brand extraction',
+      code: 'DATA_LOAD_ERROR',
+      details: error.message
+    }));
     return [];
   }
 
