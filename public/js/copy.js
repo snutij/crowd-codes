@@ -1,13 +1,17 @@
 /**
  * Copy Module - Clipboard API for promo codes
  * Story 3.4: Implement CopyButton with Clipboard API
+ * Story 3.5: Toast notification integration
  *
  * Provides:
  * - copyToClipboard() async function with fallback
  * - Event delegation for dynamically rendered copy buttons
  * - Visual feedback (button state change for 2 seconds)
+ * - Toast notification on successful copy
  * - Keyboard accessibility support
  */
+
+import { showToast } from './toast.js';
 
 /**
  * Copy text to clipboard using modern Clipboard API with fallback
@@ -63,6 +67,9 @@ async function handleCopyClick(btn, code) {
     btn.classList.add('copy-btn--copied');
     btn.setAttribute('aria-label', 'Code copié');
 
+    // Show toast notification (Story 3.5)
+    showToast('✓ Code copié');
+
     // Reset after 2 seconds
     setTimeout(() => {
       btn.textContent = originalText;
@@ -74,6 +81,9 @@ async function handleCopyClick(btn, code) {
     btn.textContent = 'Erreur ✗';
     btn.classList.add('copy-btn--error');
     btn.setAttribute('aria-label', 'Erreur de copie');
+
+    // Show error toast notification (Story 3.5 - Code Review Fix)
+    showToast('✗ Erreur de copie', 2000, 'error');
 
     // Reset after 2 seconds
     setTimeout(() => {

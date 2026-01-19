@@ -9,6 +9,8 @@
     {% block content %}{% endblock %}
   </main>
   {% include "footer.njk" %}
+  <!-- Toast container for copy feedback -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script type="module" src="/js/search.js"></script>
   <script type="module" src="/js/copy.js"></script>
 </body>
