@@ -48,13 +48,13 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Data Pipeline & Code Extraction
-  epic-2: in-progress
+  epic-2: done
   2-1-create-sqlite-database-schema: done
   2-2-implement-youtube-scraper-with-adapter-pattern: done
   2-3-implement-regex-based-code-parser: done
   2-4-implement-llm-fallback-parser: done
   2-5-implement-json-export-for-eleventy: done
-  2-6-create-daily-pipeline-github-action: backlog
+  2-6-create-daily-pipeline-github-action: done
   epic-2-retrospective: optional
 
   # Epic 3: Code Discovery & Copy Experience
