@@ -1,0 +1,93 @@
+# generated: 2026-01-19
+# project: crowd-codes
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-01-19
+project: crowd-codes
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Project Foundation & Site Structure
+  epic-1: in-progress
+  1-1-initialize-eleventy-project: done
+  1-2-create-base-nunjucks-templates: backlog
+  1-3-implement-design-system-css-foundation: backlog
+  1-4-configure-cloudflare-pages-deployment: backlog
+  1-5-create-open-source-documentation: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Data Pipeline & Code Extraction
+  epic-2: backlog
+  2-1-create-sqlite-database-schema: backlog
+  2-2-implement-youtube-scraper-with-adapter-pattern: backlog
+  2-3-implement-regex-based-code-parser: backlog
+  2-4-implement-llm-fallback-parser: backlog
+  2-5-implement-json-export-for-eleventy: backlog
+  2-6-create-daily-pipeline-github-action: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Code Discovery & Copy Experience
+  epic-3: backlog
+  3-1-create-homepage-with-search-input: backlog
+  3-2-implement-fuse-js-fuzzy-search: backlog
+  3-3-create-codecard-component: backlog
+  3-4-implement-copybutton-with-clipboard-api: backlog
+  3-5-implement-toast-notification: backlog
+  3-6-implement-empty-state-and-error-handling: backlog
+  3-7-create-basic-brand-page-access: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Brand Pages & SEO
+  epic-4: backlog
+  4-1-enhance-brand-pages-with-seo-meta-tags: backlog
+  4-2-generate-sitemap-xml: backlog
+  4-3-add-json-ld-schema-org-markup: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Observability & Analytics
+  epic-5: backlog
+  5-1-create-public-stats-page: backlog
+  5-2-implement-copy-event-tracking: backlog
+  5-3-implement-error-logging-with-regex-suggestions: backlog
+  5-4-add-build-failure-notifications: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Self-Improvement System
+  epic-6: backlog
+  6-1-generate-regex-suggestions-from-llm: backlog
+  6-2-store-original-descriptions-for-golden-dataset: backlog
+  6-3-create-daily-aggregated-github-pr: backlog
+  6-4-implement-golden-dataset-ci-validation: backlog
+  6-5-block-pr-on-regression-detection: backlog
+  epic-6-retrospective: optional
