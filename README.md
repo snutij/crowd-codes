@@ -74,7 +74,7 @@ crowd-codes/
 
 ## Deployment
 
-### Cloudflare Pages (Recommended)
+### Cloudflare Pages
 
 1. Fork this repository to your GitHub account
 
@@ -88,39 +88,22 @@ crowd-codes/
    - Build command: `npm run build`
    - Build output directory: `_site`
 
-6. Add environment variables in Cloudflare Pages settings (or use GitHub Secrets for the workflow):
-   - See `.env.example` for required variables
+6. Cloudflare will automatically deploy on every push to `main`
 
-7. Deploy! Your site will be available at `https://your-project.pages.dev`
-
-### GitHub Actions (Automated)
-
-The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically deploys to Cloudflare Pages on push to `main`.
-
-To use it, add these secrets to your GitHub repository settings:
-
-| Secret | Description |
-|--------|-------------|
-| `CLOUDFLARE_API_TOKEN` | API token with "Cloudflare Pages:Edit" permission |
-| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID |
+7. Your site will be available at `https://your-project.pages.dev`
 
 ## Environment Variables
 
 Copy `.env.example` to `.env` and configure the following variables:
 
-### Required for Data Pipeline (Epic 2+)
+### Required for Data Pipeline
 
 | Variable | Description |
 |----------|-------------|
 | `YOUTUBE_API_KEY` | YouTube Data API v3 key ([Get one here](https://console.cloud.google.com/apis/credentials)) |
 | `GEMINI_API_KEY` | Google Gemini API key for LLM fallback ([Get one here](https://aistudio.google.com/app/apikey)) |
 
-### Required for Deployment
-
-| Variable | Description |
-|----------|-------------|
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API token (GitHub Secret, not local) |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID (GitHub Secret, not local) |
+> **Note:** These variables must also be added as GitHub Secrets for the daily pipeline workflow.
 
 ### Optional
 
