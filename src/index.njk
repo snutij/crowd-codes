@@ -6,5 +6,20 @@ description: Trouvez des codes promo qui marchent. Sans pubs, sans popups, sans 
 
 {% block content %}
 <h1>Crowd Codes</h1>
-<p>Codes promo sans friction. Coming soon.</p>
+<p>Codes promo sans friction.</p>
+
+<search>
+  <input
+    type="search"
+    id="search"
+    class="search-input"
+    placeholder="Rechercher une marque..."
+    aria-label="Rechercher une marque"
+    autofocus
+  >
+</search>
+
+<section id="results" class="results-container" aria-label="Codes promo">
+  <!-- Results populated by JS in Story 3.2 -->
+</section>
 {% endblock %}

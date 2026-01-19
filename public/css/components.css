@@ -1,6 +1,96 @@
 /* Component Styles - Crowd Codes */
 /* Layout and component-specific styles */
 
+/* SearchInput Component (Story 3.1) */
+.search-input {
+  width: 100%;
+  min-height: var(--touch-min);  /* 44px - Apple HIG minimum */
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  transition: border-color var(--transition-fast);
+}
+
+.search-input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-color: var(--color-accent);
+}
+
+.search-input::placeholder {
+  color: var(--color-muted);
+}
+
+/* Results Container (Story 3.1 placeholder, enhanced Story 3.2) */
+.results-container {
+  margin-top: var(--space-md);
+}
+
+/* CodeCard Component (Story 3.2 temporary, proper component in Story 3.3) */
+.code-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.code-card:last-child {
+  border-bottom: none;
+}
+
+.code-card-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.code-value {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  background: var(--color-bg-muted, #f3f4f6);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius);
+}
+
+@media (prefers-color-scheme: dark) {
+  .code-value {
+    background: #374151;
+  }
+}
+
+.code-brand {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.code-card-meta {
+  display: flex;
+  gap: var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
+/* Empty and Error States (Story 3.2 minimal, proper styling in Story 3.6) */
+.empty-state,
+.error-state {
+  padding: var(--space-lg);
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.error-state {
+  color: var(--color-error, #dc2626);
+}
+
 /* Site Header */
 .site-header {
   padding: var(--space-md);
