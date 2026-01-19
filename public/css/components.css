@@ -30,11 +30,12 @@
   margin-top: var(--space-md);
 }
 
-/* CodeCard Component (Story 3.2 temporary, proper component in Story 3.3) */
+/* CodeCard Component (Story 3.3) */
+/* Mobile-first layout: code + button same row, metadata below */
 .code-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-sm);
   padding: var(--space-md);
   border-bottom: 1px solid var(--color-border);
 }
@@ -43,6 +44,7 @@
   border-bottom: none;
 }
 
+/* Main row: code value + copy button */
 .code-card-main {
   display: flex;
   justify-content: space-between;
@@ -50,33 +52,63 @@
   gap: var(--space-md);
 }
 
+/* Promo code display - monospace, larger font per UX spec */
 .code-value {
   font-family: var(--font-mono);
-  font-size: var(--font-size-lg);
+  font-size: 1.125rem;  /* 18px - larger than body text */
   font-weight: var(--font-weight-medium);
   color: var(--color-text);
-  background: var(--color-bg-muted, #f3f4f6);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--border-radius);
+  /* Brutalist minimal: no background, just typography hierarchy */
 }
 
-@media (prefers-color-scheme: dark) {
-  .code-value {
-    background: #374151;
-  }
+/* Metadata row: brand · date · source with dot separators */
+.code-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
+/* Dot separator between metadata items */
+.code-card-meta > span:not(:last-child)::after {
+  content: " · ";
+  margin-left: var(--space-xs);
 }
 
 .code-brand {
-  font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text);
 }
 
-.code-card-meta {
-  display: flex;
-  gap: var(--space-md);
-  font-size: var(--font-size-sm);
-  color: var(--color-muted);
+/* CopyButton - primary action (Story 3.3 placeholder, functionality in 3.4) */
+.copy-btn {
+  flex-shrink: 0;
+  min-height: var(--touch-min);  /* 44px - Apple HIG minimum */
+  min-width: 80px;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.copy-btn:hover {
+  opacity: 0.9;
+}
+
+.copy-btn:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.copy-btn:active {
+  opacity: 0.8;
 }
 
 /* Empty and Error States (Story 3.2 minimal, proper styling in Story 3.6) */

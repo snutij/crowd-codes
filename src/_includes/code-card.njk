@@ -1,0 +1,23 @@
+{#
+  CodeCard Component - Story 3.3
+  Displays a promo code with metadata (brand, date, source)
+
+  Parameters:
+    - code: object with { id, code, brand_name, found_at, source_channel }
+
+  Usage:
+    {% include "code-card.njk" %}
+#}
+<article class="code-card" data-code-id="{{ code.id }}" data-code-value="{{ code.code }}">
+  <div class="code-card-main">
+    <code class="code-value">{{ code.code }}</code>
+    <button class="copy-btn" type="button" aria-label="Copier le code {{ code.code | e }}">Copier</button>
+  </div>
+  <div class="code-card-meta">
+    <span class="code-brand">{{ code.brand_name }}</span>
+    <span class="code-date">{{ code.found_at | formatRelativeDate }}</span>
+    {% if code.source_channel %}
+    <span class="code-source">{{ code.source_channel }}</span>
+    {% endif %}
+  </div>
+</article>

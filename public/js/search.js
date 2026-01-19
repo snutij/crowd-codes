@@ -52,11 +52,15 @@ function debounce(fn, delay) {
 
 /**
  * Format relative date in French
+ * NOTE: Intentionally duplicated in .eleventy.js for SSR - no bundler in project
  * @param {string} isoDate - ISO 8601 date string
  * @returns {string} Relative date string
  */
 function formatRelativeDate(isoDate) {
+  // Validate input - return fallback for invalid dates
+  if (!isoDate) return 'date inconnue';
   const date = new Date(isoDate);
+  if (isNaN(date.getTime())) return 'date invalide';
   const now = new Date();
   const diffMs = now - date;
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -80,7 +84,8 @@ function formatRelativeDate(isoDate) {
 
 /**
  * Render search results to the DOM
- * @param {Array} results - Fuse.js search results
+ * Uses CodeCard component structure (Story 3.3)
+ * @param {Array} results - Fuse.js search results or raw code objects
  */
 function renderResults(results) {
   const container = document.getElementById('results');
@@ -91,6 +96,7 @@ function renderResults(results) {
 
   if (!results || results.length === 0) {
     container.innerHTML = '<p class="empty-state">Aucun code trouvé</p>';
+    container.setAttribute('aria-label', 'Aucun code promo trouvé');
     return;
   }
 
@@ -101,18 +107,25 @@ function renderResults(results) {
     return new Date(itemB.found_at) - new Date(itemA.found_at);
   });
 
-  // Render temporary cards (CodeCard component comes in Story 3.3)
+  // Render CodeCard components (Story 3.3)
+  // Structure: code + button same row, metadata below with dot separators
   const html = sorted.map(result => {
     const item = result.item || result;
+    const escapedCode = escapeHtml(item.code);
+    const escapedBrand = escapeHtml(item.brand_name);
+    const relativeDate = formatRelativeDate(item.found_at);
+    const escapedSource = item.source_channel ? escapeHtml(item.source_channel) : '';
+
     return `
-      <article class="code-card" data-code-id="${item.id}">
+      <article class="code-card" data-code-id="${escapeHtml(item.id)}" data-code-value="${escapedCode}">
         <div class="code-card-main">
-          <code class="code-value">${escapeHtml(item.code)}</code>
-          <span class="code-brand">${escapeHtml(item.brand_name)}</span>
+          <code class="code-value">${escapedCode}</code>
+          <button class="copy-btn" type="button" aria-label="Copier le code ${escapedCode}">Copier</button>
         </div>
         <div class="code-card-meta">
-          <span class="code-date">${formatRelativeDate(item.found_at)}</span>
-          ${item.source_channel ? `<span class="code-source">${escapeHtml(item.source_channel)}</span>` : ''}
+          <span class="code-brand">${escapedBrand}</span>
+          <span class="code-date">${relativeDate}</span>
+          ${escapedSource ? `<span class="code-source">${escapedSource}</span>` : ''}
         </div>
       </article>
     `;
