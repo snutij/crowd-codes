@@ -1,11 +1,14 @@
 /**
  * Search Module - Fuse.js fuzzy search for promo codes
  * Story 3.2: Implement Fuse.js Fuzzy Search
+ * Story 3.6: Implement Empty State & Error Handling
  *
  * Provides instant client-side search with:
  * - Fuzzy matching on brand_name, brand_slug, code
  * - 50ms debounce for performance
  * - Results sorted by found_at descending
+ * - Empathetic empty state with brand context (3.6)
+ * - Distinct error state with guidance (3.6)
  */
 
 // Import Fuse.js from CDN (no bundler in project)
@@ -83,11 +86,77 @@ function formatRelativeDate(isoDate) {
 }
 
 /**
+ * Render empathetic empty state (Story 3.6)
+ * @param {string} query - The search query (for context)
+ */
+function renderEmptyState(query) {
+  const container = document.getElementById('results');
+  if (!container) return;
+
+  const escapedQuery = escapeHtml(query);
+  const hasQuery = escapedQuery && escapedQuery.trim().length > 0;
+
+  container.innerHTML = `
+    <div class="empty-state" role="status">
+      <p class="empty-state-title">
+        ${hasQuery
+          ? `Aucun code trouvé pour « ${escapedQuery} »`
+          : 'Aucun code promo disponible'}
+      </p>
+      <p class="empty-state-message">
+        Nous surveillons les influenceurs YouTube chaque jour.
+      </p>
+      <p class="empty-state-suggestion">
+        ${hasQuery
+          ? 'Vérifiez l\'orthographe ou essayez une autre marque.'
+          : 'Revenez bientôt pour découvrir de nouveaux codes.'}
+      </p>
+    </div>
+  `;
+
+  container.setAttribute('aria-label', 'Aucun résultat');
+
+  console.log(JSON.stringify({
+    event: 'empty_state_shown',
+    query: query || null
+  }));
+}
+
+/**
+ * Render error state (Story 3.6)
+ * @param {string} errorMessage - Technical error message for logging
+ */
+function renderErrorState(errorMessage) {
+  const container = document.getElementById('results');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="error-state" role="alert">
+      <p class="error-state-title">Oups, une erreur s'est produite</p>
+      <p class="error-state-message">
+        Impossible de charger les codes promo.
+      </p>
+      <p class="error-state-suggestion">
+        Vérifiez votre connexion internet et rechargez la page.
+      </p>
+    </div>
+  `;
+
+  container.setAttribute('aria-label', 'Erreur de chargement');
+
+  console.error(JSON.stringify({
+    event: 'error_state_shown',
+    error: errorMessage
+  }));
+}
+
+/**
  * Render search results to the DOM
  * Uses CodeCard component structure (Story 3.3)
  * @param {Array} results - Fuse.js search results or raw code objects
+ * @param {string} query - The search query (for empty state context)
  */
-function renderResults(results) {
+function renderResults(results, query) {
   const container = document.getElementById('results');
   if (!container) return;
 
@@ -95,8 +164,7 @@ function renderResults(results) {
   container.innerHTML = '';
 
   if (!results || results.length === 0) {
-    container.innerHTML = '<p class="empty-state">Aucun code trouvé</p>';
-    container.setAttribute('aria-label', 'Aucun code promo trouvé');
+    renderEmptyState(query);
     return;
   }
 
@@ -164,18 +232,18 @@ function performSearch(query) {
 
   if (trimmedQuery.length === 0) {
     // Show all codes sorted by date when query is empty
-    renderResults(codesData);
+    renderResults(codesData, '');
     return;
   }
 
   if (trimmedQuery.length < 2) {
-    // Don't search for single characters
-    renderResults([]);
+    // Don't search for single characters - show empty state without query context
+    renderResults([], '');
     return;
   }
 
   const results = fuse.search(trimmedQuery);
-  renderResults(results);
+  renderResults(results, trimmedQuery);
 }
 
 /**
@@ -197,7 +265,13 @@ async function initSearch() {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    // Parse JSON with explicit error handling (Story 3.6)
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      throw new Error(`JSON_PARSE_ERROR: ${parseError.message}`);
+    }
     codesData = data.codes || [];
 
     // Initialize Fuse.js
@@ -209,7 +283,7 @@ async function initSearch() {
     }));
 
     // Show all codes initially (sorted by date)
-    renderResults(codesData);
+    renderResults(codesData, '');
 
     // Bind debounced search to input
     const debouncedSearch = debounce((e) => {
@@ -225,8 +299,8 @@ async function initSearch() {
       message: error.message
     }));
 
-    // Show error state
-    resultsContainer.innerHTML = '<p class="error-state">Erreur de chargement des codes</p>';
+    // Show error state (Story 3.6)
+    renderErrorState(error.message);
   }
 }
 
@@ -238,4 +312,4 @@ if (document.readyState === 'loading') {
 }
 
 // Export for testing
-export { initSearch, performSearch, renderResults, debounce, formatRelativeDate, FUSE_OPTIONS, DEBOUNCE_DELAY };
+export { initSearch, performSearch, renderResults, renderEmptyState, renderErrorState, debounce, formatRelativeDate, FUSE_OPTIONS, DEBOUNCE_DELAY };

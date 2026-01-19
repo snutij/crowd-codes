@@ -64,7 +64,7 @@ development_status:
   3-3-create-codecard-component: done
   3-4-implement-copybutton-with-clipboard-api: review
   3-5-implement-toast-notification: done
-  3-6-implement-empty-state-and-error-handling: backlog
+  3-6-implement-empty-state-and-error-handling: done
   3-7-create-basic-brand-page-access: backlog
   epic-3-retrospective: optional
 

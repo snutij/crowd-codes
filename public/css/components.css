@@ -176,16 +176,53 @@
   }
 }
 
-/* Empty and Error States (Story 3.2 minimal, proper styling in Story 3.6) */
-.empty-state,
-.error-state {
+/* Empty and Error States (Story 3.6) */
+.empty-state {
   padding: var(--space-lg);
   text-align: center;
   color: var(--color-muted);
 }
 
+.empty-state-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.empty-state-message {
+  font-size: var(--font-size-base);
+  color: var(--color-muted);
+  margin-bottom: var(--space-md);
+}
+
+.empty-state-suggestion {
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
+/* Error State (Story 3.6) */
 .error-state {
+  padding: var(--space-lg);
+  text-align: center;
+}
+
+.error-state-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-error, #dc2626);
+  margin-bottom: var(--space-sm);
+}
+
+.error-state-message {
+  font-size: var(--font-size-base);
+  color: var(--color-muted);
+  margin-bottom: var(--space-md);
+}
+
+.error-state-suggestion {
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
 }
 
 /* Site Header */
