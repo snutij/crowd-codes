@@ -229,6 +229,20 @@ async function processVideoWithLlm(video, llmParser, db, statements, timestamp) 
 }
 
 /**
+ * Sleep for specified milliseconds
+ * @param {number} ms - Milliseconds to sleep
+ * @returns {Promise<void>}
+ */
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Delay between LLM API calls to respect rate limits (15 RPM = 4s/request)
+ */
+const LLM_RATE_LIMIT_DELAY_MS = 4000;
+
+/**
  * Run LLM fallback on videos that failed regex parsing
  * @param {Database} db - Database instance
  * @param {Object} statements - Prepared statements
@@ -262,10 +276,17 @@ async function runLlmFallback(db, statements, llmParser) {
   let suggestedRegex = 0;
   let quotaExhausted = false;
 
-  for (const video of videos) {
+  for (let i = 0; i < videos.length; i++) {
+    const video = videos[i];
+
     if (llmParser.isQuotaExhausted()) {
       quotaExhausted = true;
       break;
+    }
+
+    // Rate limit: wait between calls (skip delay for first call)
+    if (i > 0) {
+      await sleep(LLM_RATE_LIMIT_DELAY_MS);
     }
 
     try {
