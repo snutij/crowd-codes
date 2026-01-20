@@ -100,10 +100,24 @@ Copy `.env.example` to `.env` and configure the following variables:
 
 | Variable | Description |
 |----------|-------------|
-| `YOUTUBE_API_KEY` | YouTube Data API v3 key ([Get one here](https://console.cloud.google.com/apis/credentials)) |
+| `YOUTUBE_API_KEY` | YouTube Data API v3 key (see setup below) |
 | `GEMINI_API_KEY` | Google Gemini API key for LLM fallback ([Get one here](https://aistudio.google.com/app/apikey)) |
 
-> **Note:** These variables must also be added as GitHub Secrets for the daily pipeline workflow.
+#### YouTube API Key Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a project (or select existing)
+3. **Enable the API**: Go to [YouTube Data API v3](https://console.cloud.google.com/apis/library/youtube.googleapis.com) → Click **Enable**
+4. **Create credentials**: Go to [Credentials](https://console.cloud.google.com/apis/credentials) → Create Credentials → API Key
+5. **Restrict the key** (recommended):
+   - Application restrictions: None (GitHub Actions uses dynamic IPs)
+   - API restrictions: Restrict to **YouTube Data API v3** only
+
+#### GitHub Actions Secrets
+
+Add these secrets in **Settings → Secrets and variables → Actions**:
+- `YOUTUBE_API_KEY`
+- `GEMINI_API_KEY`
 
 ### Optional
 
