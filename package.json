@@ -16,6 +16,7 @@
     "serve": "npx @11ty/eleventy --serve",
     "start": "npm run serve",
     "test": "node --test tests/*.test.js",
+    "test:pipeline": "node scripts/test-pipeline.js",
     "db:init": "node scripts/init-db.js",
     "scrape": "node scripts/scrape.js",
     "parse": "node scripts/parse.js",
