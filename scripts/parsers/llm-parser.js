@@ -27,33 +27,33 @@ const GEMINI_API_URL =
 /**
  * Prompt template for code extraction
  */
-const PROMPT_TEMPLATE = `Tu es un assistant spécialisé dans l'extraction de codes promo depuis des descriptions YouTube françaises.
+const PROMPT_TEMPLATE = `You are an assistant specialized in extracting promo codes from YouTube descriptions.
 
-Analyse cette description et extrais les codes promo:
+Analyze this description and extract the promo codes:
 
 ---
 {description}
 ---
 
-Retourne UNIQUEMENT un JSON valide avec ce format exact (pas de texte avant ou après):
+Return ONLY valid JSON with this exact format (no text before or after):
 {
   "codes": [
     {
       "code": "CODE123",
-      "brand_name": "NomMarque",
+      "brand_name": "BrandName",
       "confidence": 0.9
     }
   ],
-  "suggested_regex": "pattern regex pour matcher ce type de code ou null",
-  "reasoning": "courte explication de ton analyse"
+  "suggested_regex": "regex pattern to match this type of code or null",
+  "reasoning": "short explanation of your analysis"
 }
 
-Règles:
-- Les codes promo sont généralement en MAJUSCULES
-- Ils contiennent souvent des chiffres (ex: NIKE15, SUMMER20)
-- Cherche les mots-clés: code, promo, réduction, coupon, -X%
-- Si aucun code trouvé, retourne: { "codes": [], "suggested_regex": null, "reasoning": "..." }
-- Pour suggested_regex, propose un pattern JavaScript valide qui pourrait matcher ce type de code`;
+Rules:
+- Promo codes are usually in UPPERCASE
+- They often contain numbers (e.g., NIKE15, SUMMER20)
+- Look for keywords indicating promo codes: code, promo, discount, coupon, -X%
+- If no code found, return: { "codes": [], "suggested_regex": null, "reasoning": "..." }
+- For suggested_regex, propose a valid JavaScript pattern that could match this type of code`;
 
 /**
  * Validate a regex pattern for syntax errors
