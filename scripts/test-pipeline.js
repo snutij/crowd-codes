@@ -1,16 +1,19 @@
 #!/usr/bin/env node
 /**
- * Test Pipeline - Local testing without DB
+ * Test Pipeline - Run real scrape + parse with temp DB
  *
- * Scrapes a small sample of videos, parses them, outputs JSON.
+ * Uses the actual scrape.js and parse.js code with a temporary database.
  * Usage: npm run test:pipeline -- --limit 10
  */
 
-import { YouTubeAdapter, KEYWORDS } from './adapters/youtube-adapter.js';
-import { RegexParser } from './parsers/regex-parser.js';
-import { LlmParser } from './parsers/llm-parser.js';
+import { existsSync, unlinkSync, copyFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import Database from 'better-sqlite3';
 
-const PATTERNS_PATH = process.env.PATTERNS_PATH || 'data/patterns.json';
+// Import the real functions
+import { runScraper } from './scrape.js';
+import { runParser } from './parse.js';
 
 /**
  * Parse command line arguments
@@ -20,6 +23,7 @@ function parseArgs() {
   const options = {
     limit: 10,
     skipLlm: false,
+    keepDb: false,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -30,123 +34,172 @@ function parseArgs() {
     if (args[i] === '--skip-llm') {
       options.skipLlm = true;
     }
+    if (args[i] === '--keep-db') {
+      options.keepDb = true;
+    }
   }
 
   return options;
 }
 
 /**
- * Sleep helper for rate limiting
+ * Initialize a temporary database with schema
  */
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function initTempDb(dbPath) {
+  const db = new Database(dbPath);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS raw_videos (
+      video_id TEXT PRIMARY KEY,
+      channel_name TEXT NOT NULL,
+      description TEXT NOT NULL,
+      published_at TEXT NOT NULL,
+      source_type TEXT NOT NULL DEFAULT 'youtube',
+      scraped_at TEXT NOT NULL,
+      parsed INTEGER DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS codes (
+      id TEXT PRIMARY KEY,
+      code TEXT NOT NULL,
+      brand_name TEXT NOT NULL,
+      brand_slug TEXT NOT NULL,
+      source_type TEXT NOT NULL,
+      source_channel TEXT,
+      source_video_id TEXT,
+      found_at TEXT NOT NULL,
+      confidence REAL DEFAULT 1.0
+    );
+
+    CREATE TABLE IF NOT EXISTS brands (
+      slug TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      first_seen_at TEXT NOT NULL,
+      code_count INTEGER DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS parsing_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      video_id TEXT NOT NULL,
+      description TEXT,
+      parsed_by TEXT NOT NULL,
+      suggested_regex TEXT,
+      created_at TEXT NOT NULL
+    );
+  `);
+
+  db.close();
+}
+
+/**
+ * Extract results from temp DB
+ */
+function extractResults(dbPath) {
+  const db = new Database(dbPath, { readonly: true });
+
+  const videos = db.prepare('SELECT * FROM raw_videos').all();
+  const codes = db.prepare('SELECT * FROM codes').all();
+  const brands = db.prepare('SELECT * FROM brands').all();
+  const logs = db.prepare('SELECT * FROM parsing_logs').all();
+
+  db.close();
+
+  return { videos, codes, brands, logs };
 }
 
 async function main() {
   const options = parseArgs();
-  const results = {
-    options,
-    videos: [],
-    codes: {
-      regex: [],
-      llm: [],
-    },
-    stats: {
-      videos_fetched: 0,
-      regex_codes: 0,
-      llm_codes: 0,
-      regex_failed: 0,
-    },
-  };
+  const tempDbPath = join(tmpdir(), `crowd-codes-test-${Date.now()}.db`);
 
-  // Check API key
-  const apiKey = process.env.YOUTUBE_API_KEY;
-  if (!apiKey) {
-    console.error(JSON.stringify({ error: 'YOUTUBE_API_KEY required' }));
-    process.exit(2);
-  }
+  console.error(`\n🧪 Test Pipeline (limit: ${options.limit}, skipLlm: ${options.skipLlm})`);
+  console.error(`📁 Temp DB: ${tempDbPath}\n`);
 
   try {
-    // 1. Fetch videos
-    console.error(`Fetching ${options.limit} videos...`);
-    const adapter = new YouTubeAdapter(apiKey);
-    const publishedAfter = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    // 1. Init temp DB
+    console.error('1️⃣  Initializing temp database...');
+    initTempDb(tempDbPath);
 
-    const allVideos = await adapter.fetchVideos(KEYWORDS, {
-      publishedAfter,
-      maxResults: Math.min(options.limit, 50),
+    // 2. Run scraper (with limit via maxResults)
+    console.error(`2️⃣  Running scraper (limit: ${options.limit})...`);
+
+    // Temporarily patch the adapter to respect our limit
+    const originalEnv = process.env.CROWD_CODES_DB_PATH;
+    process.env.CROWD_CODES_DB_PATH = tempDbPath;
+
+    const scrapeResult = await runScraper({
+      dbPath: tempDbPath,
+      lookbackHours: 24,
     });
 
-    const videos = allVideos.slice(0, options.limit);
-    results.stats.videos_fetched = videos.length;
-    console.error(`Fetched ${videos.length} videos`);
+    console.error(`   ✓ Scraped ${scrapeResult.videosFound} videos, stored ${scrapeResult.videosStored}`);
 
-    // 2. Parse with regex
-    console.error('Parsing with regex...');
-    const regexParser = new RegexParser(PATTERNS_PATH);
+    // Limit videos in DB if we got more than requested
+    if (scrapeResult.videosStored > options.limit) {
+      const db = new Database(tempDbPath);
+      const videoIds = db
+        .prepare('SELECT video_id FROM raw_videos ORDER BY scraped_at DESC LIMIT ?')
+        .all(options.limit)
+        .map((r) => r.video_id);
 
-    for (const video of videos) {
-      const codes = regexParser.parseDescription(video.description, video.video_id);
+      db.prepare(
+        `DELETE FROM raw_videos WHERE video_id NOT IN (${videoIds.map(() => '?').join(',')})`
+      ).run(...videoIds);
 
-      results.videos.push({
-        video_id: video.video_id,
-        channel: video.channel_name,
-        description_preview: video.description.slice(0, 200) + '...',
-        regex_codes: codes,
-        llm_codes: [],
-      });
-
-      if (codes.length > 0) {
-        results.codes.regex.push(...codes);
-        results.stats.regex_codes += codes.length;
-      } else {
-        results.stats.regex_failed++;
-      }
+      console.error(`   ✓ Limited to ${options.limit} videos`);
+      db.close();
     }
 
-    console.error(`Regex: ${results.stats.regex_codes} codes found, ${results.stats.regex_failed} videos without codes`);
+    // 3. Run parser
+    console.error(`3️⃣  Running parser${options.skipLlm ? ' (LLM skipped)' : ''}...`);
 
-    // 3. LLM fallback (if enabled and API key present)
-    const geminiKey = process.env.GEMINI_API_KEY;
-    if (!options.skipLlm && geminiKey && results.stats.regex_failed > 0) {
-      console.error('Running LLM fallback (4s delay between calls)...');
-      const llmParser = new LlmParser(geminiKey);
+    const parseResult = await runParser({
+      dbPath: tempDbPath,
+      skipLlm: options.skipLlm,
+    });
 
-      const failedVideos = results.videos.filter((v) => v.regex_codes.length === 0);
+    console.error(`   ✓ Regex: ${parseResult.codesExtracted} codes`);
+    console.error(`   ✓ LLM: ${parseResult.llm.codesExtracted} codes`);
 
-      for (let i = 0; i < failedVideos.length; i++) {
-        const videoResult = failedVideos[i];
-        const video = videos.find((v) => v.video_id === videoResult.video_id);
+    // 4. Extract and output results
+    console.error('4️⃣  Extracting results...\n');
 
-        // Rate limit
-        if (i > 0) {
-          await sleep(4000);
-        }
+    const results = extractResults(tempDbPath);
 
-        console.error(`  LLM parsing ${i + 1}/${failedVideos.length}: ${video.video_id}`);
+    const output = {
+      options,
+      stats: {
+        videos_scraped: scrapeResult.videosStored,
+        videos_parsed: parseResult.videosProcessed,
+        codes_regex: parseResult.codesExtracted,
+        codes_llm: parseResult.llm.codesExtracted,
+        codes_total: results.codes.length,
+        brands_found: results.brands.length,
+      },
+      brands: results.brands,
+      codes: results.codes,
+      parsing_logs: results.logs.map((l) => ({
+        video_id: l.video_id,
+        parsed_by: l.parsed_by,
+        suggested_regex: l.suggested_regex,
+      })),
+    };
 
-        const result = await llmParser.parseDescription(video.description, video.video_id);
+    console.log(JSON.stringify(output, null, 2));
 
-        if (result.success && result.codes.length > 0) {
-          videoResult.llm_codes = result.codes;
-          results.codes.llm.push(...result.codes);
-          results.stats.llm_codes += result.codes.length;
-        }
-      }
-
-      console.error(`LLM: ${results.stats.llm_codes} additional codes found`);
-    } else if (options.skipLlm) {
-      console.error('LLM fallback skipped (--skip-llm flag)');
-    } else if (!geminiKey) {
-      console.error('LLM fallback skipped (no GEMINI_API_KEY)');
-    }
-
-    // 4. Output JSON
-    console.log(JSON.stringify(results, null, 2));
+    // Restore env
+    process.env.CROWD_CODES_DB_PATH = originalEnv;
 
   } catch (error) {
-    console.error(JSON.stringify({ error: error.message }));
+    console.error(`\n❌ Error: ${error.message}`);
     process.exit(1);
+  } finally {
+    // Cleanup temp DB
+    if (!options.keepDb && existsSync(tempDbPath)) {
+      unlinkSync(tempDbPath);
+      console.error(`\n🧹 Cleaned up temp DB`);
+    } else if (options.keepDb) {
+      console.error(`\n📁 Kept temp DB at: ${tempDbPath}`);
+    }
   }
 }
 
