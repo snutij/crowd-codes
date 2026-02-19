@@ -1,8 +1,9 @@
 name: Daily Pipeline
 
 on:
-  schedule:
-    - cron: '0 6 * * *'  # 6 AM UTC daily
+  # it's broken, need to be fixed
+  # schedule:
+  #  - cron: '0 6 * * *'  # 6 AM UTC daily
   workflow_dispatch:      # Manual trigger
 
 concurrency:
